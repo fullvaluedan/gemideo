@@ -1,0 +1,143 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Gemini AI Subscription Outsourcer for ChatGPT",
+    "description": "Outsource deep reasoning, 2M-token document reading, and multimodal vision to your Google Gemini Pro subscription with zero extra API costs.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://YOUR_TUNNEL_URL.loca.lt"
+    }
+  ],
+  "paths": {
+    "/v1/ask_pro": {
+      "post": {
+        "summary": "Ask Gemini 3.1 Pro for deep reasoning, mathematical proofs, or second opinions",
+        "operationId": "askGeminiPro",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "The prompt or complex problem to solve"
+                  }
+                },
+                "required": ["prompt"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response from Gemini 3.1 Pro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/vision": {
+      "post": {
+        "summary": "Inspect and analyze an image using Gemini Multimodal Vision",
+        "operationId": "geminiVision",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image_path": {
+                    "type": "string",
+                    "description": "Local absolute file path to the image"
+                  },
+                  "question": {
+                    "type": "string",
+                    "description": "Analysis question"
+                  }
+                },
+                "required": ["image_path"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Gemini Vision analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "analysis": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/read_document": {
+      "post": {
+        "summary": "Read and analyze massive documents with Gemini 2M context window",
+        "operationId": "geminiReadDocument",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "description": "Local absolute path to document"
+                  },
+                  "question": {
+                    "type": "string",
+                    "description": "Specific query or summary request"
+                  }
+                },
+                "required": ["file_path"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document analysis from Gemini Pro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

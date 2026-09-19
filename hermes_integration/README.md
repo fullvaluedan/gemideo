@@ -1,79 +1,67 @@
-# Hermes Agent Integration with Antigravity & Gemini Subscription
+# Multi-Agent Subscription Bridge: Gemini AI for Claude, Hermes, ChatGPT & Muse
 
-This bridge enables **Hermes Agent** (Desktop App & CLI) to tap directly into your active **Google Antigravity / Gemini Subscription** with **zero additional API costs**.
+Connect your active **Google Antigravity / Gemini Subscription** to all your daily AI workflows with **zero extra API costs**:
+
+- 🤖 **Claude (Desktop & CLI)**: Multimodal Vision, 2M-token document analysis, and second-opinion reasoning via native **Model Context Protocol (MCP)**.
+- ⚡ **Hermes Agent (Desktop & CLI)**: Native default provider + Auxiliary Vision engine + MCP tools.
+- 💬 **ChatGPT (Desktop & Web)**: Custom GPT Actions using OpenAPI 3.0.
+- 🎨 **Muse (muse.ai / Meta AI)**: Seamless browser overlay with `Alt + G` second opinions and vision outsourcing.
 
 ---
 
-## 🌟 Capabilities Unlocked
+## 🚀 Unified Capability Matrix
 
-| Provider / Model | Backend Routing | Cost | Reasoning / Thinking |
+| Platform | Integration Method | Capabilities Unlocked | Cost |
 | :--- | :--- | :--- | :--- |
-| `gemini-3.1-pro-high` | Google Antigravity Session | **$0.00** (Included) | ✅ Full Reasoning |
-| `gemini-3.8-flash-high` | Google Antigravity Session | **$0.00** (Included) | ✅ Low Latency |
-| `claude-sonnet-4-6` | Antigravity Multi-Model Session | **$0.00** (Included) | ✅ Frontier Coding |
-| `claude-opus-4-6-thinking` | Antigravity Multi-Model Session | **$0.00** (Included) | ✅ Deep Thinking |
-| `gpt-oss-120b-medium` | Antigravity Local/OSS Cluster | **$0.00** (Included) | ✅ Open Source |
-| `xai-oauth` (Grok 4.6 / Grok 4.20) | Native xAI OAuth in Hermes | **$0.00** (OAuth Sub) | ✅ Real-time X Telemetry |
+| **Claude Desktop** | MCP (`gemini_sub_mcp.py`) | `gemini_vision`, `gemini_read_document`, `ask_gemini_pro`, `ask_gemini_flash` | **$0.00** |
+| **Claude Code (CLI)** | User-level MCP Server | Full terminal tool suite across all projects | **$0.00** |
+| **Hermes Agent** | Native Bridge + Aux Vision | Default brain (`gemini-3.1-pro-high`) + auxiliary vision routing | **$0.00** |
+| **ChatGPT** | Custom GPT Actions (OpenAPI) | Outsource proofs, complex reasoning, and 2M document reading | **$0.00** |
+| **Muse (muse.ai)** | Userscript (`Alt+G`) + CORS | Quick second opinion & vision card directly on muse.ai | **$0.00** |
 
 ---
 
-## 🚀 How It Works
+## 🛠️ Setup Instructions
 
-1. **Standard OpenAI Compatible Bridge**:
-   - Runs locally at `http://127.0.0.1:8000/v1`
-   - Exposes `/v1/chat/completions` and `/v1/models`
-2. **Stdin NDJSON Streaming (`stream-json`)**:
-   - Solves Windows `WinError 206` (command-line length limits) by streaming large prompts and context windows through standard input directly into `agy.exe`.
-   - Real-time token streaming via Server-Sent Events (SSE).
-   - Accurately captures token usage metadata (`input_tokens`, `output_tokens`, `thinking_tokens`).
-3. **Hermes Configuration**:
-   - `C:\Users\danom\AppData\Local\hermes\config.yaml` is pre-configured with `gemini_sub` as the active provider:
-   ```yaml
-   model:
-     default: gemini-3.1-pro-high
-     provider: gemini_sub
-   providers:
-     gemini_sub:
-       name: "Gemini Subscription (Antigravity)"
-       base_url: "http://127.0.0.1:8000/v1"
-       api_key: "antigravity-local"
-       models:
-         gemini-3.1-pro-high: {}
-         gemini-3.8-flash-high: {}
-         claude-sonnet-4-6: {}
-         claude-opus-4-6-thinking: {}
-         gpt-oss-120b-medium: {}
-   ```
+### 1. Claude Desktop & Claude Code
+Both **Claude Desktop** and **Claude Code CLI** are already pre-configured on this system:
+- **Claude Desktop config updated:** `C:\Users\danom\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json`
+- **Claude Code CLI registered:** `claude mcp add --scope user gemini_sub python "C:\Users\danom\scripts\gemini_sub_mcp.py"`
+- **How to use in Claude**:
+  - Ask Claude: *"Use gemini_vision to inspect screenshot.png and describe the UI layout."*
+  - Ask Claude: *"Use gemini_read_document on huge_codebase.py and extract all API endpoints."*
+  - Ask Claude: *"Ask Gemini Pro to double-check this mathematical proof."*
 
----
+### 2. Hermes Desktop & CLI
+Hermes is already configured:
+- `C:\Users\danom\AppData\Local\hermes\config.yaml` has `default: gemini-3.1-pro-high` and `auxiliary.vision` routed to the bridge.
+- You can run `hermes` directly or switch models in the desktop app.
 
-## 🛠️ Usage
+### 3. ChatGPT (Desktop & Web)
+To connect your Gemini subscription to ChatGPT:
+1. Double-click `start_chatgpt_tunnel.bat` (uses free `localtunnel` on port 8000).
+2. Copy the generated `https://xxxx.loca.lt` URL.
+3. In ChatGPT -> **Explore GPTs** -> **Create a GPT**:
+   - Go to **Configure** -> **Create new action**.
+   - Paste the contents of `chatgpt_custom_gpt_action.json`.
+   - Replace the `servers.url` with your tunnel URL.
+4. Save the GPT! Now ChatGPT can delegate heavy lifting and vision to your Gemini subscription!
 
-### From Hermes Desktop App
-Simply open Hermes Desktop. It will automatically utilize `Gemini 3.1 Pro (High)` as default. You can also select other models from the model picker in Settings.
-
-### From Hermes CLI
-```bash
-# Default (Gemini 3.1 Pro)
-hermes -z "Analyze this code"
-
-# Explicit Gemini Pro
-hermes --provider gemini_sub -m "gemini-3.1-pro-high" -z "Deep reasoning task"
-
-# High-Speed Gemini Flash
-hermes --provider gemini_sub -m "gemini-3.8-flash-high" -z "Quick summary"
-
-# Claude Sonnet via Antigravity
-hermes --provider gemini_sub -m "claude-sonnet-4-6" -z "Code refactoring"
-
-# Grok via xAI OAuth
-hermes --provider xai-oauth -m "grok-4.6" -z "Real-time news search"
-```
+### 4. Muse (muse.ai / Meta AI)
+Since muse.ai is web-based:
+1. Install **Tampermonkey** or **Violentmonkey** extension in your browser.
+2. Install [`muse_gemini_companion.user.js`](muse_gemini_companion.user.js).
+3. Open `https://muse.ai`:
+   - A floating **✦** icon appears in the bottom right.
+   - Or highlight text on Muse and press **`Alt + G`**.
+   - Gemini 3.1 Pro processes the query and allows one-click copying straight into Muse!
 
 ---
 
-## 🔄 Running the Bridge
+## 🔄 Core Service & Management
 
-- **Silent Background Run**: Double-click `start_gemini_hermes_bridge.vbs`
-- **Console Run**: Double-click `start_gemini_hermes_bridge.bat`
-- **Health Check**: `curl http://127.0.0.1:8000/health`
+The local bridge service runs at `http://127.0.0.1:8000`:
+- **Silent Background Run:** Double-click `start_gemini_hermes_bridge.vbs`
+- **Console Run:** Double-click `start_gemini_hermes_bridge.bat`
+- **MCP Server:** `python C:\Users\danom\scripts\gemini_sub_mcp.py`
+- **Health Check:** `curl http://127.0.0.1:8000/health`
