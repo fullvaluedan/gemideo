@@ -1,0 +1,53 @@
+{
+  "hook_archetypes": [
+    {
+      "id": "kallaway_the_paradox",
+      "name": "The Kallaway Paradox / Subverted Assumption",
+      "formula": "Everyone thinks [Common Belief about AI Topic]... but they are looking at the completely wrong thing. Here is what actually just happened.",
+      "visual_cue": "High-contrast clinical split-screen or brooding A-roll talking head + dramatic sub-boom SFX",
+      "retention_mechanism": "Cognitive dissonance. The viewer must watch to resolve the contradiction."
+    },
+    {
+      "id": "riley_shock_milestone",
+      "name": "The Riley Brown Shock Outcome",
+      "formula": "I just spent [Time/Effort] testing [New AI Feature]... and it did something that genuinely terrified/shocked me.",
+      "visual_cue": "Instant full-screen screen recording showing an unbelievable output in the first 0.5 seconds",
+      "retention_mechanism": "Immediate proof-of-work and extreme curiosity to see how it was done."
+    },
+    {
+      "id": "sabrina_secret_blueprint",
+      "name": "The Sabrina Ramonov Secret Architecture",
+      "formula": "Do NOT use [Tool/Agent] until you understand this [Number]-step architecture. Most people are using it completely wrong.",
+      "visual_cue": "Quick-flash (0.4s) of a complex node graph or blueprint + animated red warning/green solution boxes",
+      "retention_mechanism": "FOMO and high bookmark utility. The viewer fears falling behind."
+    },
+    {
+      "id": "kallaway_context_lean",
+      "name": "The Kallaway Context Lean & Pivot",
+      "formula": "On [Date/Event], [Company/Product] made an announcement. Most people scrolled past it. But if you look under the hood... this rewires everything.",
+      "visual_cue": "Fast pan over news headline/tweet, suddenly blurred out by a glowing 3D diagram overlay",
+      "retention_mechanism": "Information asymmetry. Makes the viewer feel like they are getting insider intelligence."
+    },
+    {
+      "id": "riley_vibecoding_race",
+      "name": "The Riley Build-in-Public Race",
+      "formula": "Can [AI Agent] actually [Achieve Massive Task] in under 60 seconds? Let's find out right now.",
+      "visual_cue": "Stopwatch graphic in top right corner + keyboard typing SFX + live terminal output spinning",
+      "retention_mechanism": "Gamification and high-stakes urgency."
+    },
+    {
+      "id": "sabrina_unfair_advantage",
+      "name": "The Sabrina Unfair Leverage",
+      "formula": "This single AI workflow does the work of an entire [Job Role]. Here is the exact prompt and system wiring.",
+      "visual_cue": "Split screen: Traditional manual spreadsheet/dashboard vs. automated agent terminal spinning",
+      "retention_mechanism": "Greed/Efficiency reflex. Viewer instantly wants the leverage for themselves."
+    },
+    {
+      "id": "trinity_hybrid_nuke",
+      "name": "The Trinity Hybrid Nuke (Brown x Kallaway x Ramonov)",
+      "formula": "[Tech Giant] just quietly unlocked [Shocking Capability]. But wait—forget what the PR says. Here is the real blueprint, and here is what happens when you turn it on.",
+      "visual_cue": "0.0s: Heavy bass drop + text punch. 0.8s: Live screen demonstration. 1.8s: Blueprint zoom.",
+      "retention_mechanism": "Tri-layer lock: Shock + Intel + Practical Blueprint all firing in under 2 seconds."
+    }
+  ]
+}

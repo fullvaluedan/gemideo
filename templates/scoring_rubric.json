@@ -1,0 +1,55 @@
+{
+  "rubric_name": "Antigravity Viral Short Video Quality Gate (Pro-Tier Judge)",
+  "target_passing_score": 9.0,
+  "max_score": 10.0,
+  "dimensions": [
+    {
+      "id": "dim_1_hook_velocity",
+      "name": "0-3s Hook Stop-Rate & Curiosiy Gap",
+      "weight": 0.20,
+      "criteria": "Does the first 3 seconds shatter scrolling inertia? Is there an instant visual pattern interrupt and an irresistible information gap? Does it avoid boring pleasantries ('Hey guys', 'Today we are looking at...')? Must deliver a high-stakes reason to care within 40 words or 2.5 seconds."
+    },
+    {
+      "id": "dim_2_retention_velocity",
+      "name": "Retention Pacing & Pattern Interrupts",
+      "weight": 0.15,
+      "criteria": "Does the visual or auditory stimulus shift every 2.0 to 3.0 seconds? Are there micro-curiosity loops every 5-7 seconds preventing drop-off? Is the word count strictly bounded (130-155 words total)?"
+    },
+    {
+      "id": "dim_3_show_dont_tell",
+      "name": "Show-Don't-Tell Synergy (B-Roll & UI Realism)",
+      "weight": 0.15,
+      "criteria": "Does every spoken sentence have an exact, tangible visual counterpart? Are UI screenshots and screen recordings authentic to real software instead of generic stock footage? Riley Brown 'VibeCode' authenticity check."
+    },
+    {
+      "id": "dim_4_visual_metaphors",
+      "name": "Visual Metaphor & Graphic Design Clarity",
+      "weight": 0.15,
+      "criteria": "Are complex, abstract concepts (agents, neural weights, cloud machines) translated into undeniable physical/graphic metaphors (Kallaway Comprehension Maxing)? Are prompt directives detailed enough to generate directly?"
+    },
+    {
+      "id": "dim_5_mode_versatility",
+      "name": "Dual-Mode Execution Quality (Mode A & Mode B)",
+      "weight": 0.10,
+      "criteria": "Does the package provide distinct, fully fleshed-out directions for both Mode A (Standalone Faceless) and Mode B (With-Me-On-Camera)? Are presenter body language, eye contact, and PiP transitions explicitly mapped?"
+    },
+    {
+      "id": "dim_6_audio_cadence",
+      "name": "Sound Design & Rhythm Blueprint",
+      "weight": 0.10,
+      "criteria": "Is there a comprehensive audio map including SFX (sub-booms, swooshes, clicks, typing), background music energy transitions, and vocal emphasis marks (staccato, pause, whisper, punch)?"
+    },
+    {
+      "id": "dim_7_bookmark_utility",
+      "name": "Bookmark / Save & Share Leverage",
+      "weight": 0.10,
+      "criteria": "Is there high bookmark utility (Sabrina Ramonov blueprint factor)? Does the viewer walk away with an actionable prompt, system architecture, or cheat sheet that compels them to hit 'Save' or 'Share'?"
+    },
+    {
+      "id": "dim_8_zero_dollar_compliance",
+      "name": "$0 Budget & Toolchain Feasibility",
+      "weight": 0.05,
+      "criteria": "Can this entire production be executed with zero cash spend using only existing AI subscriptions (Gemini, Antigravity, local browser, free open-source tools)? No paid Midjourney/Runway API requirements."
+    }
+  ]
+}

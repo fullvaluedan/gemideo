@@ -1,0 +1,80 @@
+flowchart TD
+    %% Global Styling
+    classDef inputNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef processNode fill:#0f172a,stroke:#64748b,stroke-width:1.5px,color:#f8fafc;
+    classDef decisionNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef qualityNode fill:#311042,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef assetNode fill:#064e3b,stroke:#34d399,stroke-width:1.5px,color:#f8fafc;
+    classDef exportNode fill:#14532d,stroke:#4ade80,stroke-width:2.5px,color:#f8fafc;
+
+    %% STAGE 1: INGESTION & ANGLE MINING
+    subgraph STAGE_1 ["STAGE 1: TOPIC MINING & HOOK MATRIX"]
+        TopicIn["Raw AI Topic & Source Material\n(e.g., Grok Bot Announcement/X updates)"]:::inputNode
+        TrendAnalyzer["Outlier & Tension Extractor\n(Finds Counter-Intuitive Truths & Real-Time Data)"]:::processNode
+        HookGenerator["7-Formula Hook Generator\n- Outcome Shock (Riley)\n- The Paradox (Kallaway)\n- Secret Architecture (Sabrina)"]:::processNode
+        
+        TopicIn --> TrendAnalyzer
+        TrendAnalyzer --> HookGenerator
+    end
+
+    %% STAGE 2: PRODUCTION MODE ROUTING & SCRIPT GENERATION
+    subgraph STAGE_2 ["STAGE 2: DUAL-MODE SCRIPT SYNTHESIS (FLASH ENGINE)"]
+        ModeSelector{"Select Production Mode"}:::decisionNode
+        HookGenerator --> ModeSelector
+
+        %% Mode A: Fully Standalone / Faceless
+        subgraph MODE_A ["MODE A: FULLY STANDALONE (FACELESS)"]
+            ScriptA["Dynamic Voiceover Script Engine\n- 130-150 words (45-55s limit)\n- Kinetic typography anchors\n- Audio punch-in cues"]:::processNode
+            VisualDirectorA["Visual Director: Kinetic Layout Engine\n- Fullscreen visual metaphors\n- High-density node animations\n- Split-screen UI comparisons"]:::processNode
+            ScriptA --> VisualDirectorA
+        end
+
+        %% Mode B: With-Me-On-Camera / Presenter
+        subgraph MODE_B ["MODE B: WITH-ME-ON-CAMERA (PRESENTER)"]
+            ScriptB["Presenter A-Roll Dialogue Engine\n- Eye-contact pauses & head-turns\n- Conversational pacing (155 wpm)\n- Verbal 'look at this' gestures"]:::processNode
+            VisualDirectorB["Visual Director: Layered Compositing\n- Presenter Lower-Third / Picture-in-Picture\n- Quick-cut full-screen takeovers (every 3s)\n- Dynamic floating HUD overlays"]:::processNode
+            ScriptB --> VisualDirectorB
+        end
+
+        ModeSelector -->|Standalone Mode| ScriptA
+        ModeSelector -->|On-Camera Mode| ScriptB
+    end
+
+    %% STAGE 3: $0 MULTI-TRACK ASSET SPECIFICATION
+    subgraph STAGE_3 ["STAGE 3: ZERO-COST ASSET GENERATION ($0 STACK)"]
+        AssetSync["Storyboard & Asset Dispatcher\n(Synchronizes Audio, Video, and Overlays)"]:::processNode
+        VisualDirectorA --> AssetSync
+        VisualDirectorB --> AssetSync
+
+        %% Three Asset Paths
+        TrackBRoll["Track 1: B-Roll & Visual Metaphor Prompts\n- High-concept 3D / Cyberpunk / Tech metaphors\n- Native Antigravity/Gemini Image Gen prompts"]:::assetNode
+        TrackUI["Track 2: Screenshots & UI Screencast Directives\n- Real web UI via Playwright/Browser\n- Cursor / Terminal code execution\n- Zoom & Pan coordinates (x,y,scale)"]:::assetNode
+        TrackAudio["Track 3: Sound Design & Kinetic Text Beat Sheet\n- Sub-bass booms, whooshes, keyboard clicks\n- High-contrast animated subtitle cues (yellow/green)"]:::assetNode
+
+        AssetSync --> TrackBRoll
+        AssetSync --> TrackUI
+        AssetSync --> TrackAudio
+    end
+
+    %% STAGE 4: QUALITY GATE & ITERATION (GEMINI PRO SUBAGENTS)
+    subgraph STAGE_4 ["STAGE 4: QUALITY GATE (PRO-TIER SUBAGENT JUDGE)"]
+        ConsolidatedDraft["Consolidated Episode Draft\n(Script + Storyboard + Asset Specs)"]:::processNode
+        TrackBRoll --> ConsolidatedDraft
+        TrackUI --> ConsolidatedDraft
+        TrackAudio --> ConsolidatedDraft
+
+        ProJudgeAgent["Gemini Pro Quality Gate Subagent\nIndependent Evaluation on 8-Point Rubric:\n1. 0-3s Hook Stop-Rate\n2. Retention Velocity\n3. Show-Don't-Tell Synergy\n4. Visual Metaphor Quality\n5. Mode Feasibility\n6. Audio/Cadence Rhythm\n7. Bookmark/Share Value\n8. $0 Budget Compliance"]:::qualityNode
+        ConsolidatedDraft --> ProJudgeAgent
+
+        ScoreCheck{"Quality Score >= 9.0 / 10.0?"}:::decisionNode
+        ProJudgeAgent --> ScoreCheck
+
+        FeedbackLoop["Refinement Node (Flash Engine)\n- Cuts filler words\n- Sharpens hook contrast\n- Injects missing pattern interrupts\n- Enriches visual metaphor prompts"]:::processNode
+        ScoreCheck -->|Score < 9.0| FeedbackLoop
+        FeedbackLoop --> ModeSelector
+    end
+
+    %% STAGE 5: FINAL PACKAGING & ZERO-COST ASSET EXPORT
+    subgraph STAGE_5 ["STAGE 5: PRODUCTION PACKAGE & ASSET EXPORT"]
+        ScoreCheck -->|Score >= 9.0| FinalPackage["Production-Ready Package\n- Dual Production Scripts\n- 60s Shot-by-Shot Timeline\n- Generated Visual Asset Mockups\n- Teleprompter / CapCut / Premiere Beat Sheet"]:::exportNode
+    end

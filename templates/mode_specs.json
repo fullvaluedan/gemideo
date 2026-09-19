@@ -1,0 +1,46 @@
+{
+  "mode_a_standalone": {
+    "title": "Mode A: Fully Standalone / Faceless",
+    "description": "Zero on-camera presence. Driven entirely by high-velocity voiceover, dynamic kinetic typography, live UI captures, and story-driven visual metaphors.",
+    "pacing_rules": {
+      "target_duration_seconds": "48-58 seconds",
+      "word_count_limit": "135-155 words",
+      "speech_rate_wpm": 160,
+      "max_shot_duration_seconds": 2.5,
+      "pattern_interrupt_interval_seconds": "2.0-3.0s"
+    },
+    "visual_layering_stack": {
+      "layer_1_background": "Dynamic dark abstract motion background (#0B0D13) or ambient blurred screen recording",
+      "layer_2_content": "Full-bleed screen recordings of real software, web UI, or 3D visual metaphor graphics",
+      "layer_3_overlays": "High-contrast UI callout boxes, cursor zooms, glowing bounding boxes, progress rings",
+      "layer_4_text": "Centered kinetic subtitles (Font: Montserrat Black / Inter Bold, 64pt, Yellow highlight on active keywords, drop shadow)",
+      "layer_5_hud": "Minimalist creator watermark or corner category pill (e.g. [AI / AGENTS])"
+    },
+    "broll_and_asset_directives": {
+      "real_ui_screenshots": "Must show the real tool URL, real buttons, terminal executions, or official product page. Never generic stock images.",
+      "visual_metaphors": "Abstract concepts (e.g. 'Cloud Computer', 'Memory Buffer', 'GPU Cluster') must be visualized via 3D glass, glowing server racks, holographic blueprints, or isometric data nodes.",
+      "audio_cues": "Every scene change requires an audio cue: sub-bass thud on major points, whoosh on camera pans, mechanical keyboard click on code/UI reveals."
+    }
+  },
+  "mode_b_on_camera": {
+    "title": "Mode B: With-Me-On-Camera (Presenter + Multi-Layer Compositing)",
+    "description": "High-authority talking head presenter coupled with aggressive cutaways, picture-in-picture UI demonstrations, and hand-gesture-synced graphic overlays.",
+    "pacing_rules": {
+      "target_duration_seconds": "50-60 seconds",
+      "word_count_limit": "140-160 words",
+      "speech_rate_wpm": 155,
+      "max_uninterrupted_face_seconds": 3.0,
+      "pattern_interrupt_interval_seconds": "2.2-3.2s"
+    },
+    "presenter_framing_and_delivery": {
+      "framing": "Medium close-up (chest to head), eyes at top third line. Slight lens tilt, moody high-contrast lighting (key light at 45 deg, subtle rim light).",
+      "delivery": "High vocal conviction, punchy staccato rhythm, natural forward lean into camera on the hook, quick glance/head nod towards virtual graphic overlays.",
+      "gestures": "Index finger flick when introducing point #1, palm push when rejecting an old paradigm, look-away glance when referencing the screen."
+    },
+    "compositing_and_cutaway_rules": {
+      "hook_0_3s": "Presenter fills frame with urgent eye contact, punch-in zoom (1.15x) at word 4.",
+      "beat_transitions": "Cut from full-screen presenter to full-bleed UI screencast or visual graphic for 1.8s, then return to presenter as a floating lower-right bubble (PiP), then back to full presenter.",
+      "graphic_placement": "Graphics appear in the upper-left or floating beside presenter's head with subtle spring animation."
+    }
+  }
+}
