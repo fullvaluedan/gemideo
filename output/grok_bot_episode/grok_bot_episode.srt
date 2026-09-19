@@ -1,0 +1,75 @@
+1
+00:00:00,000 --> 00:00:02,100
+Stop chatting with AI. Grok Bot is not a chatbot.
+
+2
+00:00:02,100 --> 00:00:04,600
+Traditional AI waits for you to type, then dies.
+
+3
+00:00:04,600 --> 00:00:07,200
+Grok Bot gets its own persistent virtual machine that runs twenty-four-seven.
+
+4
+00:00:07,200 --> 00:00:09,500
+Watch this: with Teach-a-Task, you screen-record your work once.
+
+5
+00:00:09,500 --> 00:00:12,000
+Scraping data, qualifying leads, or debugging code.
+
+6
+00:00:12,000 --> 00:00:14,500
+Grok maps your DOM intent... [micro-pause] closes the browser,
+
+7
+00:00:14,500 --> 00:00:17,000
+and keeps working while your laptop is shut.
+
+8
+00:00:17,000 --> 00:00:19,500
+It's powered by Colossus—the largest supercomputer on Earth—
+
+9
+00:00:19,500 --> 00:00:22,000
+with direct real-time access to the X firehose.
+
+10
+00:00:22,000 --> 00:00:24,500
+This isn't software you talk to.
+
+11
+00:00:24,500 --> 00:00:27,000
+It's an autonomous employee you delegate to.
+
+12
+00:00:27,000 --> 00:00:30,000
+Steal this exact prompt:
+
+13
+00:00:30,000 --> 00:00:33,000
+'Map browser path and infer intent: Scan X firehose for breaking AI news,
+
+14
+00:00:33,000 --> 00:00:36,000
+verify top three sources, and dispatch a summary email
+
+15
+00:00:36,000 --> 00:00:39,000
+to my team every morning at six AM.'
+
+16
+00:00:39,000 --> 00:00:41,500
+Save this video right now,
+
+17
+00:00:41,500 --> 00:00:44,500
+and screenshot this blueprint.
+
+18
+00:00:44,500 --> 00:00:47,500
+Because tomorrow, you're either running the autonomous bots...
+
+19
+00:00:47,500 --> 00:00:50,000
+or you're competing with them.

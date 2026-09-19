@@ -1,5 +1,5 @@
 """
-AI Short-Video Production Pipeline Engine
+Gemideo: AI Short-Video Production Pipeline Engine
 Synthesizing Riley Brown (Builder/VibeCode) x Kallaway (Marketing/Metaphors) x Sabrina Ramonov (System Blueprints)
 Dual Modes: Mode A (Standalone / Faceless) & Mode B (With-Me-On-Camera)
 Zero Dollar Stack: Gemini / Antigravity / Browser / Local Open Tools
@@ -7,126 +7,119 @@ Zero Dollar Stack: Gemini / Antigravity / Browser / Local Open Tools
 
 import json
 import os
+import argparse
+import sys
 from typing import Dict, Any, List
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 
 def load_json(filename: str) -> Dict[str, Any]:
     path = os.path.join(TEMPLATES_DIR, filename)
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-class ShortVideoPipeline:
+class GemideoPipeline:
     def __init__(self):
         self.hooks = load_json("hook_formulas.json")["hook_archetypes"]
         self.mode_specs = load_json("mode_specs.json")
         self.rubric = load_json("scoring_rubric.json")
 
-    def get_hook_matrix(self, topic: str, key_tension: str) -> List[Dict[str, str]]:
-        """Generates candidate hooks across the 7 synthesized formulas."""
-        generated_hooks = []
-        for h in self.hooks:
-            generated_hooks.append({
-                "hook_id": h["id"],
-                "name": h["name"],
-                "formula": h["formula"],
-                "visual_cue": h["visual_cue"],
-                "retention_mechanism": h["retention_mechanism"]
-            })
-        return generated_hooks
+    def list_hooks(self):
+        """Displays available hook archetypes with visual cues and formulas."""
+        print("\n=== AVAILABLE VIRAL HOOK FORMULAS ===")
+        for i, h in enumerate(self.hooks, 1):
+            print(f"[{i}] {h['name']} ({h['id']})")
+            print(f"    Formula: {h['formula']}")
+            print(f"    Visual Cue: {h['visual_cue']}")
+            print(f"    Retention: {h['retention_mechanism']}\n")
 
-    def build_draft_prompt(self, topic: str, context_details: str, selected_hook: Dict[str, str], mode: str) -> str:
-        """Constructs the prompt for drafting an episode in Mode A or Mode B."""
-        spec = self.mode_specs["mode_a_standalone" if mode == "A" else "mode_b_on_camera"]
-        
-        prompt = f"""
-        === SHORT VIDEO SCRIPT GENERATION TASK ===
+    def export_srt(self, episode_json_path: str, output_srt_path: str):
+        """Converts an episode shot timeline into standard SRT subtitle format."""
+        with open(episode_json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        timeline = data.get("shot_by_shot_timeline", [])
+        srt_lines = []
+        for i, shot in enumerate(timeline, 1):
+            # Parse timestamp e.g. "00:00 - 00:02.1"
+            parts = shot["timestamp"].split(" - ")
+            start_str = parts[0].strip()
+            end_str = parts[1].strip()
+
+            def to_srt_time(t_str: str) -> str:
+                # converts "00:02.1" or "00:02" to "00:00:02,100"
+                tokens = t_str.split(":")
+                mins = int(tokens[0])
+                secs_part = tokens[1]
+                if "." in secs_part:
+                    secs = int(secs_part.split(".")[0])
+                    millis = int(float("0." + secs_part.split(".")[1]) * 1000)
+                else:
+                    secs = int(secs_part)
+                    millis = 0
+                hrs = mins // 60
+                mins = mins % 60
+                return f"{hrs:02d}:{mins:02d}:{secs:02d},{millis:03d}"
+
+            start_srt = to_srt_time(start_str)
+            end_srt = to_srt_time(end_str)
+
+            srt_lines.append(f"{i}")
+            srt_lines.append(f"{start_srt} --> {end_srt}")
+            srt_lines.append(f"{shot['spoken_script']}\n")
+
+        with open(output_srt_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(srt_lines))
+        print(f"Exported SRT subtitle file to: {output_srt_path}")
+
+    def build_generation_prompt(self, topic: str, mode: str = "A", hook_id: str = "trinity_hybrid_nuke") -> str:
+        """Generates the prompt package to be fed into Gemini Flash for drafting."""
+        selected_hook = next((h for h in self.hooks if h["id"] == hook_id), self.hooks[0])
+        mode_key = "mode_a_standalone" if mode.upper() == "A" else "mode_b_on_camera"
+        spec = self.mode_specs[mode_key]
+
+        return f"""
+        === GEMIDEO VIRAL SHORT GENERATION PROMPT ===
         Topic: {topic}
-        Context & Technical Nuances: {context_details}
-        Selected Hook Archetype: {selected_hook['name']}
-        Hook Formula: {selected_hook['formula']}
-        Selected Production Mode: {spec['title']}
-
-        === CONSTRAINTS & PACING ===
-        - Target Word Count: {spec['pacing_rules']['word_count_limit']}
-        - Total Duration: {spec['pacing_rules']['target_duration_seconds']}
-        - Pattern Interrupts: Visual/Auditory shift every {spec['pacing_rules']['pattern_interrupt_interval_seconds']}
+        Hook Archetype: {selected_hook['name']}
+        Selected Mode: {spec['title']}
+        Target Duration: {spec['pacing_rules']['target_duration_seconds']}
+        Word Limit: {spec['pacing_rules']['word_count_limit']}
+        Maximum Shot Duration: <= 3.0 seconds per visual stimulus cut.
         
-        === CREATOR DNA INTEGRATION ===
-        1. Riley Brown: Live proof-of-work, UI terminal interactions, no corporate fluff.
-        2. Kallaway: Visceral visual metaphors, context lean + unexpected pivot, high-status vocal delivery.
-        3. Sabrina Ramonov: Clear architectural breakdown, high bookmark/save utility, actionable blueprint.
-
-        === REQUIRED OUTPUT SCHEMA (JSON) ===
-        {{
-            "episode_title": string,
-            "target_duration_seconds": int,
-            "total_word_count": int,
-            "hook_analysis": {{
-                "spoken_words": string,
-                "visual_pattern_interrupt": string,
-                "audio_impact": string
-            }},
-            "shot_by_shot_timeline": [
-                {{
-                    "timestamp": "00:00 - 00:03",
-                    "spoken_script": string,
-                    "shot_type": string,
-                    "visual_action_description": string,
-                    "track_1_broll_prompt": string (Antigravity/Gemini zero-cost image prompt),
-                    "track_2_ui_screencast_action": string (Browser/IDE exact steps),
-                    "track_3_audio_and_sfx": string (Sub-bass, whoosh, click, music energy),
-                    "on_screen_kinetic_text": string (Keywords highlighted)
-                }}
-            ],
-            "bookmark_takeaway": string,
-            "zero_dollar_execution_plan": string
-        }}
+        Synthesize:
+        1. Riley Brown: VibeCode, screen recordings, rapid 2.5s pacing, authentic developer grit.
+        2. Kallaway: Subverted assumptions, visual metaphors translating abstract tech into physical models.
+        3. Sabrina Ramonov: High-save bookmark blueprint, copy-pasteable prompt, $0 free software stack.
         """
-        return prompt
 
-    def build_pro_judge_prompt(self, episode_package: Dict[str, Any]) -> str:
-        """Constructs the rigorous evaluation prompt for Gemini Pro Quality Gate."""
-        rubric_text = json.dumps(self.rubric["dimensions"], indent=2)
-        package_text = json.dumps(episode_package, indent=2)
+def main():
+    parser = argparse.ArgumentParser(description="Gemideo: AI Short-Video Production Pipeline")
+    parser.add_argument("--list-hooks", action="store_true", help="List all 7 viral hook formulas")
+    parser.add_argument("--export-srt", action="store_true", help="Export SRT subtitle file for Grok Bot episode")
+    parser.add_argument("--topic", type=str, help="Topic for new episode generation")
+    parser.add_argument("--mode", type=str, choices=["A", "B"], default="A", help="Production mode: A (Standalone) or B (On-Camera)")
+    args = parser.parse_args()
 
-        prompt = f"""
-        === INDEPENDENT QUALITY GATE: VIRAL AI SHORT EVALUATION ===
-        You are an elite, hyper-critical short-form video creative director and algorithm expert (benchmarking MrBeast, Kallaway, Riley Brown, and Sabrina Ramonov).
-        You are evaluating a draft short-form video package on the topic of '{episode_package.get("episode_title", "AI Short")}'.
+    pipeline = GemideoPipeline()
 
-        You must grade this submission with extreme rigor against the following 8 dimensions:
-        {rubric_text}
-
-        Target passing score for production is >= 9.0 / 10.0.
-        DO NOT be lenient. Rate realistically. If a hook takes 4 seconds to land, deduct heavily. If B-roll prompts are vague, deduct points. If words exceed 160 words, deduct points.
-
-        === SUBMISSION TO EVALUATE ===
-        {package_text}
-
-        === REQUIRED JSON EVALUATION RESPONSE ===
-        {{
-            "overall_score": float (0.0 to 10.0),
-            "dimension_scores": {{
-                "dim_1_hook_velocity": {{ "score": float, "critique": string }},
-                "dim_2_retention_velocity": {{ "score": float, "critique": string }},
-                "dim_3_show_dont_tell": {{ "score": float, "critique": string }},
-                "dim_4_visual_metaphors": {{ "score": float, "critique": string }},
-                "dim_5_mode_versatility": {{ "score": float, "critique": string }},
-                "dim_6_audio_cadence": {{ "score": float, "critique": string }},
-                "dim_7_bookmark_utility": {{ "score": float, "critique": string }},
-                "dim_8_zero_dollar_compliance": {{ "score": float, "critique": string }}
-            }},
-            "critical_fail_points": [string],
-            "mandatory_revisions_for_9_plus": [string],
-            "verdict": "PASS" or "REVISE"
-        }}
-        """
-        return prompt
+    if args.list_hooks:
+        pipeline.list_hooks()
+    elif args.export_srt:
+        episode_path = os.path.join(OUTPUT_DIR, "grok_bot_episode", "draft_v3.json")
+        srt_path = os.path.join(OUTPUT_DIR, "grok_bot_episode", "grok_bot_episode.srt")
+        pipeline.export_srt(episode_path, srt_path)
+    elif args.topic:
+        prompt = pipeline.build_generation_prompt(args.topic, mode=args.mode)
+        print(f"\nGenerated Generation Prompt for '{args.topic}':\n")
+        print(prompt)
+    else:
+        print("Gemideo Pipeline initialized.")
+        print(f"Loaded {len(pipeline.hooks)} hook archetypes.")
+        print(f"Loaded {len(pipeline.rubric['dimensions'])} evaluation dimensions.")
+        print("Use --list-hooks, --export-srt, or --topic '<name>' to run CLI commands.")
 
 if __name__ == "__main__":
-    pipeline = ShortVideoPipeline()
-    print("AI Short-Video Pipeline initialized successfully.")
-    print(f"Loaded {len(pipeline.hooks)} hook archetypes.")
-    print(f"Loaded {len(pipeline.rubric['dimensions'])} evaluation dimensions.")
+    main()

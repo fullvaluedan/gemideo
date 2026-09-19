@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grok Bot 50s Short Simulator</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+    .pulse-glow { animation: pulseGlow 2s infinite ease-in-out; }
+    .scanline {
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.3));
+      background-size: 100% 4px;
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+
+  <!-- Main Container -->
+  <div class="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Left Column: 9:16 Vertical Video Screen Simulator -->
+    <div class="lg:col-span-5 flex flex-col items-center">
+      <div class="relative w-[320px] h-[568px] bg-black rounded-3xl border-4 border-[var(--border)] overflow-hidden shadow-2xl flex flex-col justify-between p-4 scanline">
+        
+        <!-- Top Status Bar & Mode Badge -->
+        <div class="z-20 flex justify-between items-center text-xs">
+          <span id="modeBadge" class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
+            MODE A: FACELESS
+          </span>
+          <div class="flex items-center space-x-1.5 font-mono text-[var(--muted-foreground)]">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span id="timeDisplay">00:00.0</span>
+          </div>
+        </div>
+
+        <!-- Center Stage: Dynamic Visual Simulator -->
+        <div id="visualStage" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 transition-all duration-300">
+          <div id="visualIcon" class="text-6xl mb-4">⚡</div>
+          <div id="visualTitle" class="text-xl font-extrabold uppercase tracking-tight text-white mb-2">
+            STOP CHATTING WITH AI
+          </div>
+          <div id="visualDetail" class="text-xs text-gray-400 max-w-[240px] leading-relaxed">
+            Red neon strike slashes generic prompt box
+          </div>
+        </div>
+
+        <!-- Lower Third: Audio SFX Meter & Kinetic Captions -->
+        <div class="z-20 flex flex-col space-y-3 pb-2">
+          
+          <!-- SFX Cue Pill -->
+          <div class="flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 self-start">
+            <span class="text-xs">🔊</span>
+            <span id="sfxIndicator" class="text-[11px] font-mono text-yellow-400 font-semibold truncate max-w-[220px]">
+              80Hz Sub-bass Boom + Katana Slice
+            </span>
+          </div>
+
+          <!-- Kinetic Subtitles Display -->
+          <div class="bg-black/80 backdrop-blur-lg p-3.5 rounded-xl border border-white/15 text-center min-h-[76px] flex items-center justify-center shadow-lg">
+            <p id="captionText" class="text-base font-black tracking-wide leading-snug">
+              STOP <span class="text-red-500 uppercase">CHATTING</span> WITH AI.
+            </p>
+          </div>
+        </div>
+
+        <!-- Bottom Progress Line -->
+        <div class="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-800 z-30">
+          <div id="progressBar" class="h-full bg-gradient-to-r from-cyan-400 to-yellow-400 w-0 transition-all duration-100"></div>
+        </div>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="flex items-center space-x-4 mt-6">
+        <button id="prevBtn" class="p-2.5 rounded-xl bg-[var(--card)] hover:bg-[var(--border)] border border-[var(--border)] text-sm font-semibold transition">
+          ⏮ Prev
+        </button>
+        <button id="playPauseBtn" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold shadow-lg shadow-cyan-600/30 transition flex items-center space-x-2">
+          <span id="playIcon">▶</span> <span id="playText">Play</span>
+        </button>
+        <button id="nextBtn" class="p-2.5 rounded-xl bg-[var(--card)] hover:bg-[var(--border)] border border-[var(--border)] text-sm font-semibold transition">
+          Next ⏭
+        </button>
+        <button id="restartBtn" class="p-2.5 rounded-xl bg-[var(--card)] hover:bg-[var(--border)] border border-[var(--border)] text-sm font-semibold transition">
+          🔄
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Column: Director Controls, Shot Inspector & Blueprint -->
+    <div class="lg:col-span-7 flex flex-col space-y-6">
+      
+      <!-- Mode Toggle & Header Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-bold text-[var(--foreground)] tracking-tight">
+              Grok Bot: 24/7 Autonomous Employee
+            </h1>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1">
+              50.0s Master Short • 19 Micro-Shots (≤3.0s) • Pro Quality Score: <span class="text-emerald-400 font-bold">10.0/10 PASS</span>
+            </p>
+          </div>
+          <div class="flex items-center bg-[var(--background)] p-1 rounded-xl border border-[var(--border)]">
+            <button id="toggleModeA" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-600 text-white transition">
+              Mode A: Standalone
+            </button>
+            <button id="toggleModeB" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">
+              Mode B: On-Camera
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Shot Inspector Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div class="flex items-center space-x-2">
+            <span id="shotBadge" class="bg-yellow-400/20 text-yellow-400 border border-yellow-400/40 text-xs px-2.5 py-0.5 rounded-full font-mono font-bold">
+              SHOT 01 / 19
+            </span>
+            <span id="shotTimestamp" class="text-xs font-mono text-[var(--muted-foreground)]">00:00 - 00:02.1 (2.1s)</span>
+          </div>
+          <span id="shotTypeBadge" class="text-xs text-[var(--muted-foreground)] font-medium">Sub-2.5s Aggressive Pattern Interrupt</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="bg-[var(--background)] p-3.5 rounded-xl border border-[var(--border)] space-y-1">
+            <div class="font-bold text-[var(--muted-foreground)] uppercase tracking-wider text-[10px]">Visual Direction</div>
+            <div id="dirVisualText" class="text-[var(--foreground)] leading-relaxed">
+              Pitch black frame -> electric red strike-through over ChatGPT text input -> screen explodes into glowing cyan terminal text.
+            </div>
+          </div>
+          <div class="bg-[var(--background)] p-3.5 rounded-xl border border-[var(--border)] space-y-1">
+            <div class="font-bold text-[var(--muted-foreground)] uppercase tracking-wider text-[10px]">Audio & Sound Design</div>
+            <div id="dirAudioText" class="text-yellow-400 font-mono leading-relaxed">
+              Sub-bass boom (80Hz) -> metallic katana slice SFX.
+            </div>
+          </div>
+          <div class="bg-[var(--background)] p-3.5 rounded-xl border border-[var(--border)] space-y-1 md:col-span-2">
+            <div class="font-bold text-[var(--muted-foreground)] uppercase tracking-wider text-[10px]">Spoken Teleprompter Line</div>
+            <div id="dirSpokenText" class="text-base font-semibold text-[var(--foreground)]">
+              "Stop chatting with AI. Grok Bot is not a chatbot."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actionable Blueprint Bookmark Trap Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-yellow-400 text-lg">🔖</span>
+            <h3 class="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">
+              Sabrina Ramonov Bookmark Trap: 1-Click Steal
+            </h3>
+          </div>
+          <button id="copyPromptBtn" class="px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/40 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+            <span>📋</span> <span id="copyBtnText">Copy Prompt</span>
+          </button>
+        </div>
+        <pre id="promptCodeBlock" class="bg-[var(--background)] p-3.5 rounded-xl border border-[var(--border)] text-xs font-mono text-cyan-300 overflow-x-auto whitespace-pre-wrap leading-relaxed">Map browser path and infer intent:
+1. Scan X firehose for breaking AI news in the last 12 hours.
+2. Filter for posts with engagement > 500 and verify against top 3 technical sources.
+3. Draft a 3-bullet executive briefing email with citations.
+4. Dispatch to team@company.com every morning at 06:00 AM.</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const shots = [
+      {
+        num: "01", start: 0.0, end: 2.1,
+        script: "Stop chatting with AI. Grok Bot is not a chatbot.",
+        caption: "STOP <span class='text-red-500 font-black'>CHATTING</span> WITH AI.",
+        sfx: "80Hz Sub-bass boom + katana slice",
+        type: "Sub-2.5s Aggressive Pattern Interrupt",
+        icon: "⚡",
+        bgA: "linear-gradient(135deg, #110000 0%, #330000 100%)",
+        modeA: "Red neon slash cuts ChatGPT prompt box; cyan terminal explodes.",
+        modeB: "Presenter leans violently forward into lens in high-contrast light."
+      },
+      {
+        num: "02", start: 2.1, end: 4.6,
+        script: "Traditional AI waits for you to type, then dies.",
+        caption: "Traditional AI: You type, <span class='text-gray-400'>IT DIES</span>.",
+        sfx: "Muted vinyl record scratch / power down",
+        type: "The Paradox Contrast",
+        icon: "⏳",
+        bgA: "linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)",
+        modeA: "Gray chat terminal fades into dust; 'Session Expired'.",
+        modeB: "1.25x digital zoom; dismissive hand wave."
+      },
+      {
+        num: "03", start: 4.6, end: 7.2,
+        script: "Grok Bot gets its own persistent virtual machine that runs twenty-four-seven.",
+        caption: "Grok Bot: <span class='text-cyan-400'>PERSISTENT VM</span> 24/7.",
+        sfx: "Electric pulse hum + double UI pop",
+        type: "Hardware Flex & Realism (Grok Feedback)",
+        icon: "🖥️",
+        bgA: "linear-gradient(135deg, #001f3f 0%, #000c1a 100%)",
+        modeA: "Industrial liquid-cooled server node: 'VM #4092: 24/7 Active'.",
+        modeB: "Points right; rugged industrial server module floats in mid-air."
+      },
+      {
+        num: "04", start: 7.2, end: 9.5,
+        script: "Watch this: with Teach-a-Task, you screen-record your work once.",
+        caption: "Record your screen <span class='text-yellow-400 font-black'>ONCE</span>.",
+        sfx: "High-pitch camera shutter snap SFX",
+        type: "Riley Brown VibeCode Kickoff",
+        icon: "⏺️",
+        bgA: "linear-gradient(135deg, #2d0000 0%, #150000 100%)",
+        modeA: "Red recording border around screen: 'REC: TEACH-A-TASK'.",
+        modeB: "Full screencast with presenter in lower-right PiP bubble."
+      },
+      {
+        num: "05", start: 9.5, end: 12.0,
+        script: "Scraping data, qualifying leads, or debugging code.",
+        caption: "<span class='text-cyan-400'>LEADS</span> • <span class='text-yellow-400'>DATA</span> • <span class='text-green-400'>CODE</span>",
+        sfx: "3 rapid mechanical clicks: clack-clack-clack",
+        type: "Triple-Speed Workflow Demo",
+        icon: "⚡",
+        bgA: "linear-gradient(135deg, #003322 0%, #00110b 100%)",
+        modeA: "3-way split: spreadsheet, CRM checkmarks, compiling code.",
+        modeB: "Presenter PiP gestures as 3 badges slide in."
+      },
+      {
+        num: "06", start: 12.0, end: 14.5,
+        script: "Grok maps your DOM intent... [micro-pause] closes the browser,",
+        caption: "Maps <span class='text-yellow-400'>DOM INTENT</span> • Closes browser",
+        sfx: "Heavy mouse click + 0.2s pause + data sweep",
+        type: "Technical Realism & Cadence (GLM/Grok)",
+        icon: "🧠",
+        bgA: "linear-gradient(135deg, #1f1135 0%, #0a0512 100%)",
+        modeA: "Intent tree graph flashes: 'DOM MAP -> INTENT COMPILED'.",
+        modeB: "Two fingers mapping a grid; clicks wireless mouse."
+      },
+      {
+        num: "07", start: 14.5, end: 17.0,
+        script: "and keeps working while your laptop is shut.",
+        caption: "Laptop closed. <span class='text-green-400 font-black'>STILL WORKING</span>.",
+        sfx: "Solid laptop latch snap + deep bass drone",
+        type: "The High-Stakes Metaphor",
+        icon: "💻",
+        bgA: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+        modeA: "Closed laptop on desk with glowing holographic HUD active.",
+        modeB: "Slams laptop shut on desk; crosses arms with smirk."
+      },
+      {
+        num: "08", start: 17.0, end: 19.5,
+        script: "It's powered by Colossus—the largest supercomputer on Earth—",
+        caption: "Powered by <span class='text-yellow-400 font-black'>COLOSSUS</span> Supercomputer.",
+        sfx: "Server room hum + power-surge tone + brass swell",
+        type: "Macro Scale & Universal Metaphor",
+        icon: "🏢",
+        bgA: "linear-gradient(135deg, #051923 0%, #003554 100%)",
+        modeA: "Cinematic fly-through of Colossus racks; HUD gauge fills to 100%.",
+        modeB: "Wide studio shot; Colossus supercomputer schematic behind presenter."
+      },
+      {
+        num: "09", start: 19.5, end: 22.0,
+        script: "with direct real-time access to the X firehose.",
+        caption: "Direct <span class='text-cyan-400'>REAL-TIME X FIREHOSE</span>.",
+        sfx: "High-speed data packet chirp / swoosh",
+        type: "Raw Telemetry Realism (Grok Feedback)",
+        icon: "🌐",
+        bgA: "linear-gradient(135deg, #001219 0%, #005f73 100%)",
+        modeA: "X logo pulses with cascading green JSON telemetry and tokens.",
+        modeB: "Holds up hand; green JSON data waterfall reflects off glass desk."
+      },
+      {
+        num: "10", start: 22.0, end: 24.5,
+        script: "This isn't software you talk to.",
+        caption: "Not software you <span class='text-gray-400'>TALK TO</span>...",
+        sfx: "Muted low thud + micro-pause silence",
+        type: "Mindset Shift (Negation)",
+        icon: "🚫",
+        bgA: "linear-gradient(135deg, #2b2d42 0%, #11121b 100%)",
+        modeA: "Red strikethrough over 'PROMPT'; microphone dissolves.",
+        modeB: "Shakes head firmly at camera with index finger 'no'."
+      },
+      {
+        num: "11", start: 24.5, end: 27.0,
+        script: "It's an autonomous employee you delegate to.",
+        caption: "An <span class='text-green-400 font-black'>AUTONOMOUS EMPLOYEE</span>.",
+        sfx: "Cinematic impact thud + crisp chime",
+        type: "Mindset Shift (Affirmation / Climax)",
+        icon: "🤖",
+        bgA: "linear-gradient(135deg, #064e3b 0%, #022c22 100%)",
+        modeA: "Huge typography: 'AUTONOMOUS WORKER'; status card shows 100%.",
+        modeB: "Steps forward; authoritative two-hand push gesture."
+      },
+      {
+        num: "12", start: 27.0, end: 30.0,
+        script: "Steal this exact prompt:",
+        caption: "<span class='text-yellow-400 font-black'>STEAL THIS EXACT PROMPT</span>:",
+        sfx: "Snappy double whoosh + spacebar thud",
+        type: "Sabrina Blueprint Trigger (Bookmark Hook)",
+        icon: "📋",
+        bgA: "linear-gradient(135deg, #3b2d04 0%, #1a1401 100%)",
+        modeA: "Neon yellow prompt container drops in with 3 icon placeholders.",
+        modeB: "Points down: glowing code container drops into frame."
+      },
+      {
+        num: "13", start: 30.0, end: 33.0,
+        script: "'Map browser path and infer intent: Scan X firehose for breaking AI news,",
+        caption: "1. <span class='text-cyan-400'>RADAR SCAN</span> X firehose",
+        sfx: "Rapid mechanical keyboard typing",
+        type: "Dual-Coded Blueprint Step 1",
+        icon: "📡",
+        bgA: "linear-gradient(135deg, #0f172a 0%, #020617 100%)",
+        modeA: "Prompt line 1 animates alongside glowing [RADAR SCANNER ICON].",
+        modeB: "Looks up-left as [RADAR SCANNER] badge illuminates electric green."
+      },
+      {
+        num: "14", start: 33.0, end: 36.0,
+        script: "verify top three sources, and dispatch a summary email",
+        caption: "2. <span class='text-green-400'>SHIELD VERIFY</span> 3 sources",
+        sfx: "Double click + crisp paper slide sound",
+        type: "Dual-Coded Blueprint Step 2",
+        icon: "🛡️",
+        bgA: "linear-gradient(135deg, #0f172a 0%, #020617 100%)",
+        modeA: "Prompt line 2 animates alongside glowing [SHIELD VERIFY ICON].",
+        modeB: "Nods approvingly as [SHIELD VERIFY] badge illuminates cyan."
+      },
+      {
+        num: "15", start: 36.0, end: 39.0,
+        script: "to my team every morning at six AM.'",
+        caption: "3. <span class='text-yellow-400'>DISPATCH AT 6 AM</span>",
+        sfx: "Email send whoosh + digital chime",
+        type: "Dual-Coded Blueprint Step 3",
+        icon: "✉️",
+        bgA: "linear-gradient(135deg, #0f172a 0%, #020617 100%)",
+        modeA: "Prompt line 3 locks in alongside glowing [ENVELOPE DISPATCH ICON].",
+        modeB: "Snaps fingers on 'six AM'; animated [ENVELOPE + CLOCK] badge pulses."
+      },
+      {
+        num: "16", start: 39.0, end: 41.5,
+        script: "Save this video right now,",
+        caption: "<span class='text-yellow-400 font-black'>SAVE THIS VIDEO</span> RIGHT NOW",
+        sfx: "Heavy sub-boom + resonant bell chime",
+        type: "Sabrina Ramonov Bookmark Callout",
+        icon: "🔖",
+        bgA: "linear-gradient(135deg, #713f12 0%, #422006 100%)",
+        modeA: "Full prompt sheet freezes in HD; golden bookmark ribbon pulses.",
+        modeB: "Extreme close-up; points firmly down at platform's save button."
+      },
+      {
+        num: "17", start: 41.5, end: 44.5,
+        script: "and screenshot this blueprint.",
+        caption: "<span class='text-cyan-400 font-black'>SCREENSHOT THIS</span> BLUEPRINT",
+        sfx: "Crisp DSLR camera shutter snap SFX",
+        type: "Visual Anchor / Screenshot Flash",
+        icon: "📸",
+        bgA: "linear-gradient(135deg, #0369a1 0%, #082f49 100%)",
+        modeA: "Screen flashes 0.1s white shutter burst, locking prompt card.",
+        modeB: "Hands frame the floating card: 'Screenshot it before you scroll.'"
+      },
+      {
+        num: "18", start: 44.5, end: 47.5,
+        script: "Because tomorrow, you're either running the autonomous bots...",
+        caption: "Tomorrow: <span class='text-yellow-400 font-black'>YOU RUN THE BOTS</span>...",
+        sfx: "Rising electronic synth riser swell",
+        type: "Elevated Threat & Truth-Seeking Outro (Grok)",
+        icon: "⚠️",
+        bgA: "linear-gradient(135deg, #3f1010 0%, #1a0505 100%)",
+        modeA: "Camera zooms out into infinite grid of agent nodes; 'OPERATE OR COMPETE'.",
+        modeB: "Leans forward with chilling gravity: 'You're either running the bots...'"
+      },
+      {
+        num: "19", start: 47.5, end: 50.0,
+        script: "or you're competing with them.",
+        caption: "OR YOU'RE <span class='text-red-500 font-black'>COMPETING WITH THEM</span>",
+        sfx: "Reverse cymbal swell cutting off instantly",
+        type: "Climactic Loop Re-Hook (Grok + GLM)",
+        icon: "🔄",
+        bgA: "linear-gradient(135deg, #450a0a 0%, #000000 100%)",
+        modeA: "Visual whip-pan back to dark opening screen with blinking cursor.",
+        modeB: "Upward vocal cadence on 'them', snapping cleanly into opening pose."
+      }
+    ];
+
+    let currentShotIdx = 0;
+    let isPlaying = false;
+    let currentMode = "A";
+    let timer = null;
+    let currentTime = 0.0;
+
+    const timeDisplay = document.getElementById("timeDisplay");
+    const progressBar = document.getElementById("progressBar");
+    const visualStage = document.getElementById("visualStage");
+    const visualIcon = document.getElementById("visualIcon");
+    const visualTitle = document.getElementById("visualTitle");
+    const visualDetail = document.getElementById("visualDetail");
+    const sfxIndicator = document.getElementById("sfxIndicator");
+    const captionText = document.getElementById("captionText");
+    const shotBadge = document.getElementById("shotBadge");
+    const shotTimestamp = document.getElementById("shotTimestamp");
+    const shotTypeBadge = document.getElementById("shotTypeBadge");
+    const dirVisualText = document.getElementById("dirVisualText");
+    const dirAudioText = document.getElementById("dirAudioText");
+    const dirSpokenText = document.getElementById("dirSpokenText");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const playIcon = document.getElementById("playIcon");
+    const playText = document.getElementById("playText");
+    const modeBadge = document.getElementById("modeBadge");
+    const toggleModeA = document.getElementById("toggleModeA");
+    const toggleModeB = document.getElementById("toggleModeB");
+
+    function renderShot(idx) {
+      const s = shots[idx];
+      visualStage.style.background = s.bgA;
+      visualIcon.textContent = s.icon;
+      visualTitle.textContent = s.num === "01" ? "GROK BOT AGENT" : (s.num === "07" ? "GHOST WORKER" : (s.num >= "12" && s.num <= "17" ? "AUTOPILOT BLUEPRINT" : "PERSISTENT VM"));
+      visualDetail.textContent = currentMode === "A" ? s.modeA : s.modeB;
+      sfxIndicator.textContent = s.sfx;
+      captionText.innerHTML = s.caption;
+
+      shotBadge.textContent = `SHOT ${s.num} / 19`;
+      shotTimestamp.textContent = `${s.start.toFixed(1)}s - ${s.end.toFixed(1)}s (${(s.end - s.start).toFixed(1)}s)`;
+      shotTypeBadge.textContent = s.type;
+      dirVisualText.textContent = currentMode === "A" ? s.modeA : s.modeB;
+      dirAudioText.textContent = s.sfx;
+      dirSpokenText.textContent = `"${s.script}"`;
+
+      const pct = (currentTime / 50.0) * 100;
+      progressBar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+      timeDisplay.textContent = `00:${currentTime < 10 ? '0' : ''}${currentTime.toFixed(1)}`;
+    }
+
+    function tick() {
+      currentTime += 0.1;
+      if (currentTime >= 50.0) {
+        currentTime = 0.0; // Infinite loop as designed
+      }
+      // find shot
+      const idx = shots.findIndex(s => currentTime >= s.start && currentTime < s.end);
+      if (idx !== -1 && idx !== currentShotIdx) {
+        currentShotIdx = idx;
+      }
+      renderShot(currentShotIdx);
+    }
+
+    playPauseBtn.addEventListener("click", () => {
+      if (isPlaying) {
+        clearInterval(timer);
+        isPlaying = false;
+        playIcon.textContent = "▶";
+        playText.textContent = "Play";
+      } else {
+        timer = setInterval(tick, 100);
+        isPlaying = true;
+        playIcon.textContent = "⏸";
+        playText.textContent = "Pause";
+      }
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentShotIdx > 0) {
+        currentShotIdx--;
+        currentTime = shots[currentShotIdx].start;
+        renderShot(currentShotIdx);
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentShotIdx < shots.length - 1) {
+        currentShotIdx++;
+        currentTime = shots[currentShotIdx].start;
+        renderShot(currentShotIdx);
+      }
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      currentTime = 0.0;
+      currentShotIdx = 0;
+      renderShot(currentShotIdx);
+    });
+
+    toggleModeA.addEventListener("click", () => {
+      currentMode = "A";
+      modeBadge.textContent = "MODE A: FACELESS";
+      modeBadge.className = "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider";
+      toggleModeA.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-600 text-white transition";
+      toggleModeB.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition";
+      renderShot(currentShotIdx);
+    });
+
+    toggleModeB.addEventListener("click", () => {
+      currentMode = "B";
+      modeBadge.textContent = "MODE B: ON-CAMERA";
+      modeBadge.className = "bg-purple-500/20 text-purple-400 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider";
+      toggleModeB.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white transition";
+      toggleModeA.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition";
+      renderShot(currentShotIdx);
+    });
+
+    document.getElementById("copyPromptBtn").addEventListener("click", () => {
+      const code = document.getElementById("promptCodeBlock").textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById("copyBtnText").textContent = "Copied!";
+        setTimeout(() => {
+          document.getElementById("copyBtnText").textContent = "Copy Prompt";
+        }, 2000);
+      });
+    });
+
+    renderShot(0);
+  </script>
+</body>
+</html>
