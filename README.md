@@ -18,7 +18,7 @@ A production-grade, zero-cost pipeline designed to generate hyper-retention shor
 ## 2. Directory Structure
 
 ```
-scratch/ai_short_video_pipeline/
+gemideo/
 ├── pipeline_graph.mermaid          # Mermaid architecture flowchart
 ├── pipeline_engine.py             # Python orchestrator & schema builder
 ├── CREATOR_ANALYSIS.md            # Deep-dive study into Brown, Kallaway, and Ramonov
