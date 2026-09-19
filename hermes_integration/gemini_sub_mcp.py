@@ -118,6 +118,38 @@ async def gemini_vision(image_path: str, question: str = "Analyze this image in 
     return await call_bridge("gemini-3.8-flash-high", instruction)
 
 @mcp.tool(
+    name="gemini_audio",
+    description="Listen to and analyze an audio file (MP3, WAV, M4A, AAC, FLAC, voice recordings, podcasts, speech, sound effects) using Google Gemini's native audio understanding. Transcribe spoken words, analyze vocal tone/pacing, identify background sounds, or critique audio quality. Provide the absolute local file path."
+)
+async def gemini_audio(audio_path: str, question: str = "Transcribe and analyze this audio in detail, noting speech, tone, and sound events.") -> str:
+    """Listen to and analyze an audio file using Gemini Multimodal Audio."""
+    norm_path = os.path.abspath(audio_path).replace("\\", "/")
+    if not os.path.exists(norm_path):
+        return f"Error: Audio file not found at '{norm_path}'"
+
+    instruction = (
+        f"Please inspect and listen to the audio file at `{norm_path}` using view_file.\n"
+        f"User question / instruction: {question}"
+    )
+    return await call_bridge("gemini-3.1-pro-high", instruction)
+
+@mcp.tool(
+    name="gemini_video",
+    description="Watch and analyze a video file (MP4, MOV, MKV, WebM, AVI, short-form shorts/reels, screencasts, animation clips) using Google Gemini's native video understanding. Analyze visual scene transitions, cut pacing, B-roll timing, on-screen text, presenter body language, and temporal story flow. Provide the absolute local file path."
+)
+async def gemini_video(video_path: str, question: str = "Watch and analyze this video in detail, describing the visual flow, pacing, and key scenes.") -> str:
+    """Watch and analyze a video file using Gemini Multimodal Video."""
+    norm_path = os.path.abspath(video_path).replace("\\", "/")
+    if not os.path.exists(norm_path):
+        return f"Error: Video file not found at '{norm_path}'"
+
+    instruction = (
+        f"Please inspect and watch the video file at `{norm_path}` using view_file.\n"
+        f"User question / instruction: {question}"
+    )
+    return await call_bridge("gemini-3.1-pro-high", instruction)
+
+@mcp.tool(
     name="gemini_read_document",
     description="Offload reading and analyzing massive documents, PDFs, logs, or large code files to Google Gemini's 2,000,000 token context window. Provide the absolute local file path."
 )
@@ -129,6 +161,22 @@ async def gemini_read_document(file_path: str, question: str = "Summarize the ke
 
     instruction = (
         f"Please inspect the document file at `{norm_path}` using view_file.\n"
+        f"User question / instruction: {question}"
+    )
+    return await call_bridge("gemini-3.1-pro-high", instruction)
+
+@mcp.tool(
+    name="gemini_multimodal_inspect",
+    description="Universal multimodal inspector for ANY media file: image, audio, video, PDF, or code. Automatically routes to Gemini Pro's native multimodal engine. Provide the absolute local file path."
+)
+async def gemini_multimodal_inspect(file_path: str, question: str = "Analyze this file in detail and answer any questions.") -> str:
+    """Inspect any media file (image, audio, video, document) using Gemini Multimodal Pro."""
+    norm_path = os.path.abspath(file_path).replace("\\", "/")
+    if not os.path.exists(norm_path):
+        return f"Error: File not found at '{norm_path}'"
+
+    instruction = (
+        f"Please inspect the media file at `{norm_path}` using view_file.\n"
         f"User question / instruction: {question}"
     )
     return await call_bridge("gemini-3.1-pro-high", instruction)
