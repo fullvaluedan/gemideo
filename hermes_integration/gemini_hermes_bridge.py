@@ -346,24 +346,362 @@ async def handle_chat_completions(request):
         }
         return JSONResponse(response_payload)
 
+async def handle_ask_pro(request):
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return JSONResponse({"error": "Missing 'prompt'"}, status_code=400)
+    output, usage = await run_agy_full_turn(prompt, "gemini-3.1-pro-high")
+    return JSONResponse({"response": output, "model": "gemini-3.1-pro-high", "usage": usage})
+
+async def handle_ask_flash(request):
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return JSONResponse({"error": "Missing 'prompt'"}, status_code=400)
+    output, usage = await run_agy_full_turn(prompt, "gemini-3.8-flash-high")
+    return JSONResponse({"response": output, "model": "gemini-3.8-flash-high", "usage": usage})
+
+async def handle_vision(request):
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+    image_path = body.get("image_path", "").replace("\\", "/")
+    question = body.get("question", "Analyze this image in detail and describe everything visible.")
+    if not image_path:
+        return JSONResponse({"error": "Missing 'image_path'"}, status_code=400)
+    instruction = f"Please inspect the image file at `{image_path}` using view_file.\nUser question / instruction: {question}"
+    output, usage = await run_agy_full_turn(instruction, "gemini-3.8-flash-high")
+    return JSONResponse({"analysis": output, "image_path": image_path, "usage": usage})
+
+async def handle_read_document(request):
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+    file_path = body.get("file_path", "").replace("\\", "/")
+    question = body.get("question", "Summarize the key information and extract the most relevant details.")
+    if not file_path:
+        return JSONResponse({"error": "Missing 'file_path'"}, status_code=400)
+    instruction = f"Please inspect the document file at `{file_path}` using view_file.\nUser question / instruction: {question}"
+    output, usage = await run_agy_full_turn(instruction, "gemini-3.1-pro-high")
+    return JSONResponse({"summary": output, "file_path": file_path, "usage": usage})
+
+async def generate_imagen_file(prompt: str, aspect_ratio: str = "1:1", image_name: str = "image") -> Tuple[Optional[str], str]:
+    """Generates an image via agy.exe native Google Imagen tool and returns (file_path, raw_output)."""
+    clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', image_name).strip('_')[:20] or "image"
+    valid_ratios = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
+    ratio = aspect_ratio if aspect_ratio in valid_ratios else "1:1"
+
+    instruction = (
+        f"Please use the generate_image tool to generate an image with:\n"
+        f"Prompt: '{prompt}'\n"
+        f"ImageName: '{clean_name}'\n"
+        f"AspectRatio: '{ratio}'\n"
+        f"Once generated, report the exact file path where it was saved."
+    )
+
+    raw_output, _ = await run_agy_full_turn(instruction, "gemini-3.8-flash-high")
+
+    # 1. Regex find absolute path in output
+    match = re.search(r'([A-Za-z]:\\[^`\r\n]+\.jpg)', raw_output)
+    if match and os.path.exists(match.group(1)):
+        return match.group(1), raw_output
+
+    # 2. Fallback: inspect brain directories for recently created .jpg
+    try:
+        for base in [r"C:\Users\danom\.gemini\antigravity-cli\brain", r"C:\Users\danom\.gemini\antigravity\brain"]:
+            if not os.path.exists(base):
+                continue
+            latest_file = None
+            latest_time = 0
+            for root, dirs, files in os.walk(base):
+                for f in files:
+                    if f.endswith(".jpg"):
+                        fp = os.path.join(root, f)
+                        try:
+                            t = os.path.getmtime(fp)
+                            if t > latest_time:
+                                latest_time = t
+                                latest_file = fp
+                        except Exception:
+                            pass
+            if latest_file and (time.time() - latest_time) < 120:
+                return latest_file, raw_output
+    except Exception:
+        pass
+
+    return None, raw_output
+
+async def handle_image_generations(request):
+    """OpenAI-compatible /v1/images/generations endpoint."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": {"message": "Invalid JSON body", "type": "invalid_request_error"}}, status_code=400)
+
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return JSONResponse({"error": {"message": "Missing required field 'prompt'", "type": "invalid_request_error"}}, status_code=400)
+
+    size = str(body.get("size", "1024x1024")).lower()
+    response_format = body.get("response_format", "url")
+
+    # Map size to aspect ratio
+    if "1792" in size or "1920" in size or "16:9" in size:
+        aspect_ratio = "16:9"
+    elif "1080" in size or "9:16" in size:
+        aspect_ratio = "9:16"
+    elif "4:3" in size:
+        aspect_ratio = "4:3"
+    elif "3:4" in size:
+        aspect_ratio = "3:4"
+    elif "3:2" in size:
+        aspect_ratio = "3:2"
+    elif "2:3" in size:
+        aspect_ratio = "2:3"
+    else:
+        aspect_ratio = "1:1"
+
+    file_path, raw_out = await generate_imagen_file(prompt, aspect_ratio=aspect_ratio, image_name="img")
+
+    if not file_path or not os.path.exists(file_path):
+        return JSONResponse({
+            "error": {
+                "message": f"Image generation failed: {raw_out}",
+                "type": "api_error"
+            }
+        }, status_code=500)
+
+    created_time = int(time.time())
+    norm_url = "file:///" + file_path.replace("\\", "/")
+    img_data = {
+        "url": norm_url,
+        "revised_prompt": prompt,
+        "file_path": file_path.replace("\\", "/")
+    }
+
+    if response_format == "b64_json":
+        import base64
+        with open(file_path, "rb") as f:
+            img_data["b64_json"] = base64.b64encode(f.read()).decode("utf-8")
+
+    return JSONResponse({
+        "created": created_time,
+        "data": [img_data]
+    })
+
+async def handle_generate_image(request):
+    """Direct JSON image generation endpoint."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    prompt = body.get("prompt", "")
+    aspect_ratio = body.get("aspect_ratio", "1:1")
+    image_name = body.get("image_name", "generated_image")
+    if not prompt:
+        return JSONResponse({"error": "Missing 'prompt'"}, status_code=400)
+
+    file_path, raw_out = await generate_imagen_file(prompt, aspect_ratio=aspect_ratio, image_name=image_name)
+    if not file_path:
+        return JSONResponse({"error": "Image generation failed", "details": raw_out}, status_code=500)
+
+    norm_path = file_path.replace("\\", "/")
+    return JSONResponse({
+        "status": "success",
+        "file_path": norm_path,
+        "url": f"file:///{norm_path}",
+        "raw_response": raw_out
+    })
+
+async def handle_openapi(request):
+    schema = {
+        "openapi": "3.0.1",
+        "info": {
+            "title": "Gemini Subscription Bridge for ChatGPT & External Agents",
+            "description": "Exposes Google Gemini 3.1 Pro, Flash, Vision, and 2M Document Reading to ChatGPT and external tools with zero extra API costs.",
+            "version": "1.0.0"
+        },
+        "servers": [{"url": "http://127.0.0.1:8000"}],
+        "paths": {
+            "/v1/ask_pro": {
+                "post": {
+                    "summary": "Ask Gemini 3.1 Pro for deep reasoning, proofs, or complex advice",
+                    "operationId": "askGeminiPro",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {"prompt": {"type": "string", "description": "The prompt or question to solve"}},
+                                    "required": ["prompt"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {"description": "Gemini Pro response", "content": {"application/json": {"schema": {"type": "object", "properties": {"response": {"type": "string"}}}}}}
+                    }
+                }
+            },
+            "/v1/ask_flash": {
+                "post": {
+                    "summary": "Ask Gemini 3.8 Flash for fast, low-latency summaries and extraction",
+                    "operationId": "askGeminiFlash",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {"prompt": {"type": "string"}},
+                                    "required": ["prompt"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {"description": "Gemini Flash response", "content": {"application/json": {"schema": {"type": "object", "properties": {"response": {"type": "string"}}}}}}
+                    }
+                }
+            },
+            "/v1/vision": {
+                "post": {
+                    "summary": "Inspect and analyze an image or screenshot using Gemini Multimodal Vision",
+                    "operationId": "geminiVision",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "image_path": {"type": "string", "description": "Local absolute file path to the image"},
+                                        "question": {"type": "string", "description": "Specific question or analysis request"}
+                                    },
+                                    "required": ["image_path"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {"description": "Gemini Vision analysis", "content": {"application/json": {"schema": {"type": "object", "properties": {"analysis": {"type": "string"}}}}}}
+                    }
+                }
+            },
+            "/v1/read_document": {
+                "post": {
+                    "summary": "Read and analyze massive documents/codebases using Gemini 2M context window",
+                    "operationId": "geminiReadDocument",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "file_path": {"type": "string", "description": "Local absolute file path to the document/file"},
+                                        "question": {"type": "string", "description": "Specific question or summary goal"}
+                                    },
+                                    "required": ["file_path"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {"description": "Gemini Document Summary", "content": {"application/json": {"schema": {"type": "object", "properties": {"summary": {"type": "string"}}}}}}
+                    }
+                }
+            },
+            "/v1/images/generations": {
+                "post": {
+                    "summary": "Generate high-resolution photorealistic images using Google Imagen via active subscription",
+                    "operationId": "generateImageOpenAI",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "prompt": {"type": "string", "description": "Visual prompt describing the image to generate"},
+                                        "size": {"type": "string", "description": "Image dimensions: 1024x1024 (1:1), 1792x1024 (16:9), 1024x1792 (9:16)"},
+                                        "response_format": {"type": "string", "description": "url or b64_json"}
+                                    },
+                                    "required": ["prompt"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {"description": "OpenAI-compatible image data", "content": {"application/json": {"schema": {"type": "object", "properties": {"data": {"type": "array"}}}}}}
+                    }
+                }
+            }
+        }
+    }
+    return JSONResponse(schema)
+
 async def handle_health(request):
     return JSONResponse({
         "status": "online",
         "service": "Gemini Hermes Bridge",
         "active_models": AVAILABLE_MODELS,
-        "aliases": MODEL_ALIASES
+        "aliases": MODEL_ALIASES,
+        "endpoints": [
+            "/v1/chat/completions",
+            "/v1/models",
+            "/v1/ask_pro",
+            "/v1/ask_flash",
+            "/v1/vision",
+            "/v1/read_document",
+            "/v1/images/generations",
+            "/v1/generate_image",
+            "/openapi.json"
+        ]
     })
 
 routes = [
     Route("/", handle_health, methods=["GET"]),
     Route("/health", handle_health, methods=["GET"]),
+    Route("/openapi.json", handle_openapi, methods=["GET"]),
     Route("/v1/models", handle_models, methods=["GET"]),
     Route("/models", handle_models, methods=["GET"]),
     Route("/v1/chat/completions", handle_chat_completions, methods=["POST"]),
     Route("/chat/completions", handle_chat_completions, methods=["POST"]),
+    Route("/v1/ask_pro", handle_ask_pro, methods=["POST"]),
+    Route("/v1/ask_flash", handle_ask_flash, methods=["POST"]),
+    Route("/v1/vision", handle_vision, methods=["POST"]),
+    Route("/v1/read_document", handle_read_document, methods=["POST"]),
+    Route("/v1/images/generations", handle_image_generations, methods=["POST"]),
+    Route("/images/generations", handle_image_generations, methods=["POST"]),
+    Route("/v1/generate_image", handle_generate_image, methods=["POST"]),
 ]
 
-app = Starlette(routes=routes)
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
+
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+        allow_credentials=True
+    )
+]
+
+app = Starlette(routes=routes, middleware=middleware)
 
 if __name__ == "__main__":
     port = 8000
@@ -372,5 +710,5 @@ if __name__ == "__main__":
     print("Models Available:")
     for m in AVAILABLE_MODELS:
         print(f" - {m}")
-    print(f"\nReady to accept Hermes requests at http://127.0.0.1:{port}/v1\n")
+    print(f"\nReady to accept Hermes, Claude, and external requests at http://127.0.0.1:{port}/v1\n")
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")

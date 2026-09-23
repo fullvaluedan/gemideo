@@ -11,6 +11,7 @@ import json
 import asyncio
 import urllib.request
 import subprocess
+import re
 from typing import Optional
 
 from mcp.server.mcpserver import MCPServer
@@ -180,6 +181,43 @@ async def gemini_multimodal_inspect(file_path: str, question: str = "Analyze thi
         f"User question / instruction: {question}"
     )
     return await call_bridge("gemini-3.1-pro-high", instruction)
+
+@mcp.tool(
+    name="gemini_generate_image",
+    description="Generate high-resolution photorealistic images, concept art, UI mockups, or digital illustrations using Google Imagen via your active Antigravity/Gemini Pro subscription. $0 cost. Supports aspect ratios: '1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3'."
+)
+async def gemini_generate_image(
+    prompt: str,
+    aspect_ratio: str = "1:1",
+    image_name: str = "generated_image"
+) -> str:
+    """Generate images using Google Imagen via Antigravity."""
+    clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', image_name).strip('_') or "generated_image"
+    valid_ratios = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
+    ratio = aspect_ratio if aspect_ratio in valid_ratios else "1:1"
+
+    instruction = (
+        f"Please use the generate_image tool to generate an image with:\n"
+        f"Prompt: '{prompt}'\n"
+        f"ImageName: '{clean_name}'\n"
+        f"AspectRatio: '{ratio}'\n"
+        f"Once generated, report the exact file path where it was saved."
+    )
+
+    response = await call_bridge("gemini-3.8-flash-high", instruction)
+
+    # Extract file path if present
+    match = re.search(r'([A-Za-z]:\\[^`\r\n]+\.jpg)', response)
+    if match:
+        img_path = match.group(1).replace("\\", "/")
+        return (
+            f"### Image Generated Successfully!\n\n"
+            f"- **File Path:** `{img_path}`\n"
+            f"- **File Link:** [{clean_name}.jpg](file:///{img_path})\n\n"
+            f"![{clean_name}](file:///{img_path})\n\n"
+            f"{response}"
+        )
+    return response
 
 if __name__ == "__main__":
     asyncio.run(mcp.run_stdio_async())

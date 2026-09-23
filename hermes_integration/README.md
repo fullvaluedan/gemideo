@@ -13,10 +13,10 @@ Connect your active **Google Antigravity / Gemini Subscription** to all your dai
 
 | Platform | Integration Method | Capabilities Unlocked | Cost |
 | :--- | :--- | :--- | :--- |
-| **Claude Desktop** | MCP (`gemini_sub_mcp.py`) | `gemini_vision`, `gemini_read_document`, `ask_gemini_pro`, `ask_gemini_flash` | **$0.00** |
-| **Claude Code (CLI)** | User-level MCP Server | Full terminal tool suite across all projects | **$0.00** |
-| **Hermes Agent** | Native Bridge + Aux Vision | Default brain (`gemini-3.1-pro-high`) + auxiliary vision routing | **$0.00** |
-| **ChatGPT** | Custom GPT Actions (OpenAPI) | Outsource proofs, complex reasoning, and 2M document reading | **$0.00** |
+| **Claude Desktop** | MCP (`gemini_sub_mcp.py`) | `gemini_vision`, `gemini_audio`, `gemini_video`, `gemini_generate_image`, `gemini_read_document`, `ask_gemini_pro`, `ask_gemini_flash` | **$0.00** |
+| **Claude Code (CLI)** | User-level MCP Server | Full terminal tool suite & Imagen generation across all projects | **$0.00** |
+| **Hermes Agent** | Native Bridge + Aux Vision | Default brain (`gemini-3.1-pro-high`) + auxiliary vision + `/v1/images/generations` | **$0.00** |
+| **ChatGPT** | Custom GPT Actions (OpenAPI) | Outsource proofs, complex reasoning, 2M document reading, image gen | **$0.00** |
 | **Muse (muse.ai)** | Userscript (`Alt+G`) + CORS | Quick second opinion & vision card directly on muse.ai | **$0.00** |
 
 ---
@@ -29,6 +29,7 @@ Both **Claude Desktop** and **Claude Code CLI** are already pre-configured on th
 - **Claude Code CLI registered:** `claude mcp add --scope user gemini_sub python "C:\Users\danom\scripts\gemini_sub_mcp.py"`
 - **How to use in Claude**:
   - Ask Claude: *"Use gemini_vision to inspect screenshot.png and describe the UI layout."*
+  - Ask Claude: *"Use gemini_generate_image to create a photorealistic cyberpunk neon skyline in 16:9 aspect ratio."*
   - Ask Claude: *"Use gemini_read_document on huge_codebase.py and extract all API endpoints."*
   - Ask Claude: *"Ask Gemini Pro to double-check this mathematical proof."*
 
@@ -36,6 +37,7 @@ Both **Claude Desktop** and **Claude Code CLI** are already pre-configured on th
 Hermes is already configured:
 - `C:\Users\danom\AppData\Local\hermes\config.yaml` has `default: gemini-3.1-pro-high` and `auxiliary.vision` routed to the bridge.
 - You can run `hermes` directly or switch models in the desktop app.
+- **Image Generation in Hermes / OpenAI clients**: Call `POST http://127.0.0.1:8000/v1/images/generations` with standard OpenAI payload (`{"prompt": "...", "size": "1024x1024"}`) to generate images via Google Imagen with $0 extra cost.
 
 ### 3. ChatGPT (Desktop & Web)
 To connect your Gemini subscription to ChatGPT:
